@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String    @id @default(cuid())
+  email     String    @unique
+  name      String
+  password  String
+  contents  Content[]
+  createdAt DateTime  @default(now())
+  updatedAt DateTime  @updatedAt
+}
+
+enum ContentType {
+  POST
+  VIDEO
+}
+
+enum ContentStatus {
+  PENDING
+  GENERATING
+  COMPLETED
+  FAILED
+}
+
+model Content {
+  id            String        @id @default(cuid())
+  type          ContentType
+  status        ContentStatus @default(PENDING)
+  prompt        String
+  generatedText String?       @db.Text
+  mediaUrl      String?
+  mediaType     String?
+  taskId        String?
+  errorMessage  String?
+  userId        String
+  user          User          @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt     DateTime      @default(now())
+  updatedAt     DateTime      @updatedAt
+
+  @@index([userId])
+}
