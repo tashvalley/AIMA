@@ -1,5 +1,7 @@
 import { Link } from 'react-router-dom';
 
+const isSafeMediaUrl = (url) => typeof url === 'string' && url.startsWith('/uploads/');
+
 const statusColors = {
   COMPLETED: 'bg-green-100 text-green-700 dark:bg-green-900/30 dark:text-green-400',
   GENERATING: 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/30 dark:text-yellow-400',
@@ -16,7 +18,7 @@ export default function ContentCard({ content, onDelete }) {
   return (
     <div className="bg-white dark:bg-gray-800 rounded-xl border border-gray-200 dark:border-gray-700 shadow-sm overflow-hidden">
       {/* Media preview */}
-      {content.mediaUrl && content.status === 'COMPLETED' && (
+      {content.mediaUrl && content.status === 'COMPLETED' && isSafeMediaUrl(content.mediaUrl) && (
         <div className="aspect-video bg-gray-100 dark:bg-gray-700">
           {content.type === 'VIDEO' ? (
             <video
@@ -27,7 +29,7 @@ export default function ContentCard({ content, onDelete }) {
           ) : (
             <img
               src={`${import.meta.env.VITE_API_URL}${content.mediaUrl}`}
-              alt={content.prompt}
+              alt="Generated content"
               className="w-full h-full object-cover"
             />
           )}

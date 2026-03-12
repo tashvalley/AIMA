@@ -10,14 +10,30 @@ export default function Register() {
   const { register } = useAuth();
   const navigate = useNavigate();
 
+  const validatePassword = (pw) => {
+    if (pw.length < 8) return 'Password must be at least 8 characters';
+    if (!/[A-Z]/.test(pw)) return 'Password must contain an uppercase letter';
+    if (!/[a-z]/.test(pw)) return 'Password must contain a lowercase letter';
+    if (!/\d/.test(pw)) return 'Password must contain a digit';
+    return null;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
+
+    const pwError = validatePassword(password);
+    if (pwError) {
+      setError(pwError);
+      return;
+    }
+
     try {
       await register(name, email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Registration failed');
+      const msg = err.response?.data?.message || 'Registration failed';
+      setError(typeof msg === 'string' ? msg.slice(0, 200) : 'Registration failed');
     }
   };
 
@@ -63,7 +79,7 @@ export default function Register() {
               onChange={(e) => setPassword(e.target.value)}
               className="w-full px-4 py-2 border border-gray-300 dark:border-gray-600 dark:bg-gray-700 dark:text-white dark:placeholder-gray-400 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none"
               placeholder="••••••••"
-              minLength={6}
+              minLength={8}
             />
           </div>
           <button

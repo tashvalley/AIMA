@@ -10,9 +10,14 @@ const app = express();
 
 // Global middleware
 app.use(helmet());
-app.use(cors({ origin: config.clientUrl, credentials: true }));
-app.use(morgan('dev'));
-app.use(express.json());
+app.use(cors({
+  origin: config.clientUrl,
+  credentials: true,
+  methods: ['GET', 'POST', 'PUT', 'DELETE'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+app.use(morgan(config.nodeEnv === 'development' ? 'dev' : 'combined'));
+app.use(express.json({ limit: '10mb' }));
 
 // Static files (uploaded media)
 app.use('/uploads', express.static(path.join(__dirname, '..', 'uploads')));

@@ -16,7 +16,8 @@ export default function Login() {
       await login(email, password);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Login failed');
+      const msg = err.response?.data?.message || 'Login failed';
+      setError(typeof msg === 'string' ? msg.slice(0, 200) : 'Login failed');
     }
   };
 

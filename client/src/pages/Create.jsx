@@ -1,6 +1,8 @@
 import { useState } from 'react';
 import { generatePost, generateVideo } from '../services/contentApi';
 
+const isSafeMediaUrl = (url) => typeof url === 'string' && url.startsWith('/uploads/');
+
 const tabs = [
   { key: 'POST', label: 'Post (Image + Text)' },
   { key: 'VIDEO', label: 'Video (Video + Text)' },
@@ -26,7 +28,8 @@ export default function Create() {
           : await generateVideo(prompt);
       setResult(data.data);
     } catch (err) {
-      setError(err.response?.data?.message || 'Generation failed. Please try again.');
+      const msg = err.response?.data?.message || 'Generation failed. Please try again.';
+      setError(typeof msg === 'string' ? msg.slice(0, 200) : 'Generation failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -71,6 +74,7 @@ export default function Create() {
               ? 'e.g., A vibrant sunset over a mountain lake with inspirational text about perseverance...'
               : 'e.g., A cinematic shot of ocean waves crashing on a rocky shore at golden hour...'
           }
+          maxLength={10000}
           className="w-full px-4 py-3 border border-gray-300 dark:border-gray-600 dark:bg-gray-800 dark:text-white dark:placeholder-gray-500 rounded-lg focus:ring-2 focus:ring-indigo-500 focus:border-transparent outline-none resize-none"
         />
         <button
@@ -105,7 +109,7 @@ export default function Create() {
           <h2 className="text-lg font-semibold text-gray-900 dark:text-white mb-4">Generated Content</h2>
           <div className={activeTab === 'POST' ? 'grid grid-cols-1 md:grid-cols-2 gap-6' : 'space-y-6'}>
             {/* Media */}
-            {result.mediaUrl && (
+            {result.mediaUrl && isSafeMediaUrl(result.mediaUrl) && (
               <div className="rounded-xl overflow-hidden border border-gray-200 dark:border-gray-700">
                 {result.type === 'VIDEO' ? (
                   <video
@@ -116,7 +120,7 @@ export default function Create() {
                 ) : (
                   <img
                     src={`${import.meta.env.VITE_API_URL}${result.mediaUrl}`}
-                    alt={result.prompt}
+                    alt="Generated content"
                     className="w-full"
                   />
                 )}

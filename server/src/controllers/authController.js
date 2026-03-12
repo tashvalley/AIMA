@@ -3,6 +3,11 @@ const authService = require('../services/authService');
 
 const prisma = new PrismaClient();
 
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const PASSWORD_MIN_LENGTH = 8;
+const PASSWORD_REGEX = /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d).+$/;
+const NAME_MAX_LENGTH = 100;
+
 exports.register = async (req, res, next) => {
   try {
     const { email, name, password } = req.body;
@@ -11,14 +16,37 @@ exports.register = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Email, name, and password are required' });
     }
 
-    const existing = await prisma.user.findUnique({ where: { email } });
+    if (typeof email !== 'string' || typeof name !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Invalid input types' });
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+    const trimmedName = name.trim();
+
+    if (!EMAIL_REGEX.test(trimmedEmail)) {
+      return res.status(400).json({ success: false, message: 'Invalid email format' });
+    }
+
+    if (trimmedName.length > NAME_MAX_LENGTH) {
+      return res.status(400).json({ success: false, message: `Name must be ${NAME_MAX_LENGTH} characters or fewer` });
+    }
+
+    if (password.length < PASSWORD_MIN_LENGTH) {
+      return res.status(400).json({ success: false, message: `Password must be at least ${PASSWORD_MIN_LENGTH} characters` });
+    }
+
+    if (!PASSWORD_REGEX.test(password)) {
+      return res.status(400).json({ success: false, message: 'Password must contain at least one uppercase letter, one lowercase letter, and one digit' });
+    }
+
+    const existing = await prisma.user.findUnique({ where: { email: trimmedEmail } });
     if (existing) {
       return res.status(409).json({ success: false, message: 'Email already in use' });
     }
 
     const hashedPassword = await authService.hashPassword(password);
     const user = await prisma.user.create({
-      data: { email, name, password: hashedPassword },
+      data: { email: trimmedEmail, name: trimmedName, password: hashedPassword },
     });
 
     const token = authService.generateToken(user.id);
@@ -40,7 +68,12 @@ exports.login = async (req, res, next) => {
       return res.status(400).json({ success: false, message: 'Email and password are required' });
     }
 
-    const user = await prisma.user.findUnique({ where: { email } });
+    if (typeof email !== 'string' || typeof password !== 'string') {
+      return res.status(400).json({ success: false, message: 'Invalid input types' });
+    }
+
+    const trimmedEmail = email.trim().toLowerCase();
+    const user = await prisma.user.findUnique({ where: { email: trimmedEmail } });
     if (!user) {
       return res.status(401).json({ success: false, message: 'Invalid credentials' });
     }

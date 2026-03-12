@@ -1,5 +1,11 @@
+const config = require('../config');
+
 module.exports = (err, req, res, next) => {
-  console.error(err.stack);
+  if (config.nodeEnv === 'development') {
+    console.error(err.stack);
+  } else {
+    console.error(`[${new Date().toISOString()}] ${err.message}`);
+  }
 
   const status = err.status || 500;
   const message = err.status ? err.message : 'Internal server error';
