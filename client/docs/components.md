@@ -6,7 +6,7 @@
 
 | Component | File                        | Props | Description                                  | Status   | Added      |
 |-----------|-----------------------------|-------|----------------------------------------------|----------|------------|
-| Layout    | `src/components/Layout.jsx` | —     | Nav bar (with dark toggle + nav links) + Outlet | ✅ Active | 2026-03-13 |
+| Layout    | `src/components/Layout.jsx` | —     | Floating pill nav + mobile bottom nav + Outlet | ✅ Active | 2026-03-13 |
 
 ### UI Components
 
@@ -27,3 +27,6 @@
 | 2026-03-13 | ADD    | Created Layout, ProtectedRoute             |
 | 2026-03-13 | ADD    | Created ContentCard                        |
 | 2026-03-13 | MODIFY | Layout — added dark mode toggle + nav links |
+| 2026-03-13 | MODIFY | Layout — redesigned with floating pill nav, mobile bottom nav, glass effect |
+| 2026-03-13 | MODIFY | ContentCard — redesigned with gradient hover effects, improved badges |
+| 2026-03-13 | MODIFY | ProtectedRoute — updated spinner style     |
