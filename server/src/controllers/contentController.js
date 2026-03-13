@@ -18,6 +18,9 @@ function friendlyAiError(err) {
   if (msg.includes('INVALID_ARGUMENT') || msg.includes('400')) {
     return 'The prompt was rejected by the AI. Try rephrasing your request.';
   }
+  if (msg.includes('UNAVAILABLE') || msg.includes('503') || msg.includes('high demand')) {
+    return 'AI model is experiencing high demand. Please try again in a few minutes.';
+  }
   if (msg.includes('timed out')) {
     return 'Generation timed out. Please try again.';
   }
