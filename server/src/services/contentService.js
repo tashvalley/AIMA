@@ -10,7 +10,7 @@ const POST_SYSTEM_PROMPT =
   'You are a professional content creator. Generate engaging, well-structured content based on the user prompt. Include a compelling headline and body text suitable for a blog post or social media. Format with markdown.';
 
 const VIDEO_SYSTEM_PROMPT =
-  'You are a professional video script writer. Generate a short, compelling script for a 5-second video based on the user prompt. Keep it concise and visual. Return only the script text.';
+  'You are a professional social media content creator. Based on the user prompt, generate a short, engaging caption or description that would accompany a video on social media (Instagram, TikTok, YouTube Shorts). Include relevant hashtags. Keep it concise — 2-3 sentences max plus hashtags.';
 
 exports.generatePost = async (userId, prompt) => {
   const content = await prisma.content.create({
