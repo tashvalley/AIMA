@@ -31,7 +31,7 @@ exports.generateImage = async (prompt) => {
   };
 };
 
-exports.generateVideo = async (prompt) => {
+exports.generateVideo = async (prompt, downloadPath) => {
   let operation = await ai.models.generateVideos({
     model: 'veo-2.0-generate-001',
     prompt,
@@ -55,5 +55,10 @@ exports.generateVideo = async (prompt) => {
     throw new Error('Video generation timed out');
   }
 
-  return operation.response;
+  // Download using SDK (handles auth automatically)
+  const video = operation.response.generatedVideos[0];
+  await ai.files.download({
+    file: video.video,
+    downloadPath,
+  });
 };

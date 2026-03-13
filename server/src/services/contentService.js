@@ -1,8 +1,10 @@
+const path = require('path');
 const { PrismaClient } = require('@prisma/client');
 const googleAi = require('./googleAiService');
 const fileService = require('./fileService');
 
 const prisma = new PrismaClient();
+const UPLOADS_DIR = path.resolve(__dirname, '..', '..', 'uploads');
 
 const POST_SYSTEM_PROMPT =
   'You are a professional content creator. Generate engaging, well-structured content based on the user prompt. Include a compelling headline and body text suitable for a blog post or social media. Format with markdown.';
@@ -56,13 +58,11 @@ exports.generateVideo = async (userId, prompt) => {
       data: { generatedText },
     });
 
-    // Step 2: Generate video from prompt
-    const videoResponse = await googleAi.generateVideo(prompt);
-
-    // Save video to disk — the response contains generatedVideos with video file info
-    const video = videoResponse.generatedVideos[0];
-    const videoUrl = video.video.uri;
-    const mediaUrl = await fileService.downloadAndSave(videoUrl, `${content.id}.mp4`);
+    // Step 2: Generate video and save directly via SDK
+    const filename = `${content.id}.mp4`;
+    const downloadPath = path.join(UPLOADS_DIR, filename);
+    await googleAi.generateVideo(prompt, downloadPath);
+    const mediaUrl = `/uploads/${filename}`;
 
     return await prisma.content.update({
       where: { id: content.id },
