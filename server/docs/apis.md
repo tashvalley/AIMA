@@ -22,8 +22,8 @@
 
 | Method | Endpoint                     | Description          | Auth | Request Body    | Response                                      | Controller                   | Status   | Added      |
 |--------|------------------------------|----------------------|------|-----------------|-----------------------------------------------|------------------------------|----------|------------|
-| POST   | `/api/content/generate-post` | Generate post (img+text) | Yes  | `{ prompt }`    | `{ success, data: Content }`                  | contentController.generatePost  | ✅ Active | 2026-03-13 |
-| POST   | `/api/content/generate-video`| Generate video (vid+text) | Yes  | `{ prompt }`    | `{ success, data: Content }`                  | contentController.generateVideo | ✅ Active | 2026-03-13 |
+| POST   | `/api/content/generate-post` | Generate post (img+text) | Yes  | `{ prompt, aspectRatio? }` | `{ success, data: Content }`             | contentController.generatePost  | ✅ Active | 2026-03-13 |
+| POST   | `/api/content/generate-video`| Generate video (vid+text) | Yes  | `{ prompt, withAudio?, aspectRatio? }` | `{ success, data: Content }`  | contentController.generateVideo | ✅ Active | 2026-03-13 |
 | GET    | `/api/content/history`       | List user content    | Yes  | —               | `{ success, data: { contents, total, page } }`| contentController.getHistory    | ✅ Active | 2026-03-13 |
 | GET    | `/api/content/:id`           | Get single content   | Yes  | —               | `{ success, data: Content }`                  | contentController.getById       | ✅ Active | 2026-03-13 |
 | GET    | `/api/content/:id/download`  | Download media file  | Yes  | —               | Binary file (Content-Disposition: attachment)  | contentController.download      | ✅ Active | 2026-03-13 |
@@ -39,3 +39,4 @@ Query params for `/api/content/history`: `type` (POST|VIDEO), `page` (default 1)
 | 2026-03-13 | ADD    | Created /api/auth (register, login, me)    |
 | 2026-03-13 | ADD    | Created /api/content (generate, history, CRUD) |
 | 2026-03-13 | ADD    | Added /api/content/:id/download for media file download |
+| 2026-03-13 | MODIFY | generate-post/video: added aspectRatio param (image: 1:1/3:4/4:3/9:16/16:9, video: 16:9/9:16) |

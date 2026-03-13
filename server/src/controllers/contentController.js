@@ -4,6 +4,8 @@ const contentService = require('../services/contentService');
 const MAX_PROMPT_LENGTH = 10000;
 const VALID_CONTENT_TYPES = ['POST', 'VIDEO'];
 const MAX_PAGE_LIMIT = 100;
+const VALID_IMAGE_RATIOS = ['1:1', '3:4', '4:3', '9:16', '16:9'];
+const VALID_VIDEO_RATIOS = ['16:9', '9:16'];
 
 function friendlyAiError(err) {
   const msg = err.message || '';
@@ -30,14 +32,15 @@ function friendlyAiError(err) {
 
 exports.generatePost = async (req, res, next) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, aspectRatio } = req.body;
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ success: false, message: 'Prompt is required' });
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
       return res.status(400).json({ success: false, message: `Prompt must be ${MAX_PROMPT_LENGTH} characters or fewer` });
     }
-    const content = await contentService.generatePost(req.userId, prompt.trim());
+    const safeRatio = VALID_IMAGE_RATIOS.includes(aspectRatio) ? aspectRatio : '16:9';
+    const content = await contentService.generatePost(req.userId, prompt.trim(), safeRatio);
     res.status(201).json({ success: true, data: content });
   } catch (err) {
     console.error('Post generation error:', err.message);
@@ -47,14 +50,15 @@ exports.generatePost = async (req, res, next) => {
 
 exports.generateVideo = async (req, res, next) => {
   try {
-    const { prompt, withAudio } = req.body;
+    const { prompt, withAudio, aspectRatio } = req.body;
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ success: false, message: 'Prompt is required' });
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
       return res.status(400).json({ success: false, message: `Prompt must be ${MAX_PROMPT_LENGTH} characters or fewer` });
     }
-    const content = await contentService.generateVideo(req.userId, prompt.trim(), withAudio !== false);
+    const safeRatio = VALID_VIDEO_RATIOS.includes(aspectRatio) ? aspectRatio : '16:9';
+    const content = await contentService.generateVideo(req.userId, prompt.trim(), withAudio !== false, safeRatio);
     res.status(201).json({ success: true, data: content });
   } catch (err) {
     console.error('Video generation error:', err.message);

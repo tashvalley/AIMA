@@ -37,6 +37,7 @@ model Content {
   generatedText String?       @db.Text
   mediaUrl      String?
   mediaType     String?
+  aspectRatio   String?
   taskId        String?
   errorMessage  String?
   userId        String

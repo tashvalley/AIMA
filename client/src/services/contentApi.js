@@ -1,10 +1,10 @@
 import api from './api';
 
-export const generatePost = (prompt) =>
-  api.post('/api/content/generate-post', { prompt });
+export const generatePost = (prompt, aspectRatio = '16:9') =>
+  api.post('/api/content/generate-post', { prompt, aspectRatio });
 
-export const generateVideo = (prompt, withAudio = true) =>
-  api.post('/api/content/generate-video', { prompt, withAudio });
+export const generateVideo = (prompt, withAudio = true, aspectRatio = '16:9') =>
+  api.post('/api/content/generate-video', { prompt, withAudio, aspectRatio });
 
 export const getContentHistory = (params) =>
   api.get('/api/content/history', { params });

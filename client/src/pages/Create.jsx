@@ -3,6 +3,19 @@ import { generatePost, generateVideo, downloadContent } from '../services/conten
 
 const isSafeMediaUrl = (url) => typeof url === 'string' && url.startsWith('/uploads/');
 
+const IMAGE_RATIOS = [
+  { value: '16:9', label: '16:9', desc: 'Landscape', w: 32, h: 18 },
+  { value: '4:3', label: '4:3', desc: 'Standard', w: 28, h: 21 },
+  { value: '1:1', label: '1:1', desc: 'Square', w: 24, h: 24 },
+  { value: '3:4', label: '3:4', desc: 'Portrait', w: 21, h: 28 },
+  { value: '9:16', label: '9:16', desc: 'Tall', w: 18, h: 32 },
+];
+
+const VIDEO_RATIOS = [
+  { value: '16:9', label: '16:9', desc: 'Landscape', w: 32, h: 18 },
+  { value: '9:16', label: '9:16', desc: 'Portrait', w: 18, h: 32 },
+];
+
 const tabs = [
   { key: 'POST', label: 'Image Post', icon: (
     <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
@@ -24,6 +37,7 @@ export default function Create() {
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
   const [withAudio, setWithAudio] = useState(true);
+  const [aspectRatio, setAspectRatio] = useState('16:9');
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -34,8 +48,8 @@ export default function Create() {
     try {
       const { data } =
         activeTab === 'POST'
-          ? await generatePost(prompt)
-          : await generateVideo(prompt, withAudio);
+          ? await generatePost(prompt, aspectRatio)
+          : await generateVideo(prompt, withAudio, aspectRatio);
       setResult(data.data);
     } catch (err) {
       const msg = err.response?.data?.message || 'Generation failed. Please try again.';
@@ -59,7 +73,7 @@ export default function Create() {
         {tabs.map((tab) => (
           <button
             key={tab.key}
-            onClick={() => { setActiveTab(tab.key); setResult(null); setError(''); }}
+            onClick={() => { setActiveTab(tab.key); setResult(null); setError(''); setAspectRatio('16:9'); }}
             className={`flex items-center gap-2 px-4 py-2 text-sm font-medium rounded-lg cursor-pointer transition-all ${
               activeTab === tab.key
                 ? 'bg-white dark:bg-gray-800 text-gray-900 dark:text-white shadow-sm'
@@ -91,6 +105,38 @@ export default function Create() {
             maxLength={10000}
             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-shadow"
           />
+          {/* Aspect ratio selector */}
+          <div className="mt-4">
+            <p className="text-sm font-medium text-gray-700 dark:text-gray-300 mb-2">Aspect ratio</p>
+            <div className="flex gap-2 flex-wrap">
+              {(activeTab === 'POST' ? IMAGE_RATIOS : VIDEO_RATIOS).map((r) => (
+                <button
+                  key={r.value}
+                  type="button"
+                  onClick={() => setAspectRatio(r.value)}
+                  className={`flex items-center gap-2.5 px-3.5 py-2.5 rounded-xl border cursor-pointer transition-all ${
+                    aspectRatio === r.value
+                      ? 'border-purple-500 bg-purple-50 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400 shadow-sm shadow-purple-500/10'
+                      : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800 text-gray-500 dark:text-gray-400 hover:border-gray-300 dark:hover:border-gray-600'
+                  }`}
+                >
+                  <div
+                    className={`rounded-sm ${
+                      aspectRatio === r.value
+                        ? 'border-2 border-purple-500'
+                        : 'border-2 border-gray-300 dark:border-gray-500'
+                    }`}
+                    style={{ width: `${r.w * 0.65}px`, height: `${r.h * 0.65}px` }}
+                  />
+                  <div className="text-left">
+                    <p className={`text-xs font-semibold ${aspectRatio === r.value ? 'text-purple-600 dark:text-purple-400' : 'text-gray-700 dark:text-gray-300'}`}>{r.label}</p>
+                    <p className="text-[10px] text-gray-400 dark:text-gray-500">{r.desc}</p>
+                  </div>
+                </button>
+              ))}
+            </div>
+          </div>
+
           {/* Audio toggle — video only */}
           {activeTab === 'VIDEO' && (
             <div className="mt-4 flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-gray-700">

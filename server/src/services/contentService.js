@@ -12,16 +12,16 @@ const POST_SYSTEM_PROMPT =
 const VIDEO_SYSTEM_PROMPT =
   'You are a professional social media content creator. Based on the user prompt, generate a short, engaging caption or description that would accompany a video on social media (Instagram, TikTok, YouTube Shorts). Include relevant hashtags. Keep it concise — 2-3 sentences max plus hashtags.';
 
-exports.generatePost = async (userId, prompt) => {
+exports.generatePost = async (userId, prompt, aspectRatio = '16:9') => {
   const content = await prisma.content.create({
-    data: { type: 'POST', status: 'GENERATING', prompt, userId },
+    data: { type: 'POST', status: 'GENERATING', prompt, aspectRatio, userId },
   });
 
   try {
     // Generate text and image in parallel
     const [generatedText, imageData] = await Promise.all([
       googleAi.generateText(prompt, POST_SYSTEM_PROMPT),
-      googleAi.generateImage(prompt),
+      googleAi.generateImage(prompt, aspectRatio),
     ]);
 
     // Save image to disk
@@ -44,9 +44,9 @@ exports.generatePost = async (userId, prompt) => {
   }
 };
 
-exports.generateVideo = async (userId, prompt, withAudio = true) => {
+exports.generateVideo = async (userId, prompt, withAudio = true, aspectRatio = '16:9') => {
   const content = await prisma.content.create({
-    data: { type: 'VIDEO', status: 'GENERATING', prompt, userId },
+    data: { type: 'VIDEO', status: 'GENERATING', prompt, aspectRatio, userId },
   });
 
   try {
@@ -61,7 +61,7 @@ exports.generateVideo = async (userId, prompt, withAudio = true) => {
     // Step 2: Generate video and save directly via SDK
     const filename = `${content.id}.mp4`;
     const downloadPath = path.join(UPLOADS_DIR, filename);
-    await googleAi.generateVideo(prompt, downloadPath, withAudio);
+    await googleAi.generateVideo(prompt, downloadPath, withAudio, aspectRatio);
     const mediaUrl = `/uploads/${filename}`;
 
     return await prisma.content.update({

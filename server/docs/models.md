@@ -22,7 +22,7 @@
 - **Relations:** `contents Content[]`
 
 #### Content
-- **Status:** ✅ Active | **Added:** 2026-03-13 | **Modified:** —
+- **Status:** ✅ Active | **Added:** 2026-03-13 | **Modified:** 2026-03-13
 - **Fields:**
 
   | Field         | Type          | Constraints              |
@@ -34,6 +34,7 @@
   | generatedText | String?       | @db.Text                 |
   | mediaUrl      | String?       |                          |
   | mediaType     | String?       |                          |
+  | aspectRatio   | String?       | e.g. "16:9", "9:16"     |
   | taskId        | String?       |                          |
   | errorMessage  | String?       |                          |
   | userId        | String        | FK -> User.id            |
@@ -60,3 +61,4 @@
 | 2026-03-13 | ADD    | Created User model                             |
 | 2026-03-13 | ADD    | Created Content model, ContentType/Status enums |
 | 2026-03-13 | MODIFY | User — added contents relation                 |
+| 2026-03-13 | MODIFY | Content — added aspectRatio field               |

@@ -53,14 +53,14 @@ exports.generateText = async (prompt, systemPrompt) => {
   }, 'generateText');
 };
 
-exports.generateImage = async (prompt) => {
+exports.generateImage = async (prompt, aspectRatio = '16:9') => {
   return withRetry(async () => {
     const response = await ai.models.generateImages({
       model: 'imagen-4.0-generate-001',
       prompt,
       config: {
         numberOfImages: 1,
-        aspectRatio: '16:9',
+        aspectRatio,
       },
     });
     const image = response.generatedImages[0];
@@ -71,7 +71,7 @@ exports.generateImage = async (prompt) => {
   }, 'generateImage');
 };
 
-exports.generateVideo = async (prompt, downloadPath, withAudio = true) => {
+exports.generateVideo = async (prompt, downloadPath, withAudio = true, aspectRatio = '16:9') => {
   const videoModel = withAudio ? 'veo-3.0-generate-001' : 'veo-2.0-generate-001';
 
   // Retry the initial video generation kick-off
@@ -80,7 +80,7 @@ exports.generateVideo = async (prompt, downloadPath, withAudio = true) => {
       model: videoModel,
       prompt,
       config: {
-        aspectRatio: '16:9',
+        aspectRatio,
         durationSeconds: 8,
       },
     });
