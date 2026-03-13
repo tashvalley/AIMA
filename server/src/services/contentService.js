@@ -58,19 +58,13 @@ exports.generateVideo = async (userId, prompt) => {
       data: { generatedText },
     });
 
-    // Step 2: Generate a source image from the prompt
-    const imageData = await googleAi.generateImage(prompt);
+    // Step 2: Generate video from prompt
+    const videoResponse = await googleAi.generateVideo(prompt);
 
-    // Step 3: Generate video from image + prompt
-    const videoResult = await googleAi.generateVideo(
-      prompt,
-      imageData.base64,
-      imageData.mimeType
-    );
-
-    // Save video to disk
-    const video = videoResult.generatedVideos[0];
-    const mediaUrl = fileService.saveBase64(video.video.videoBytes, `${content.id}.mp4`);
+    // Save video to disk — the response contains generatedVideos with video file info
+    const video = videoResponse.generatedVideos[0];
+    const videoUrl = video.video.uri;
+    const mediaUrl = await fileService.downloadAndSave(videoUrl, `${content.id}.mp4`);
 
     return await prisma.content.update({
       where: { id: content.id },

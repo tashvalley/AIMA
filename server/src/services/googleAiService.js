@@ -1,54 +1,59 @@
-const { GoogleGenerativeAI } = require('@google/generative-ai');
+const { GoogleGenAI } = require('@google/genai');
 const config = require('../config');
 
-const genAI = new GoogleGenerativeAI(config.googleAi.apiKey);
+const ai = new GoogleGenAI({ apiKey: config.googleAi.apiKey });
 
 exports.generateText = async (prompt, systemPrompt) => {
-  const model = genAI.getGenerativeModel({
+  const response = await ai.models.generateContent({
     model: 'gemini-2.0-flash',
-    systemInstruction: systemPrompt,
+    contents: prompt,
+    config: {
+      systemInstruction: systemPrompt,
+    },
   });
 
-  const result = await model.generateContent(prompt);
-  return result.response.text();
+  return response.text;
 };
 
 exports.generateImage = async (prompt) => {
-  const model = genAI.getGenerativeModel({ model: 'imagen-3.0-generate-002' });
-
-  const result = await model.generateImages({
+  const response = await ai.models.generateImages({
+    model: 'imagen-4.0-generate-001',
     prompt,
-    config: { numberOfImages: 1 },
+    config: {
+      numberOfImages: 1,
+    },
   });
 
-  // Returns base64 image data
-  const image = result.generatedImages[0];
+  const image = response.generatedImages[0];
   return {
     base64: image.image.imageBytes,
-    mimeType: image.image.mimeType || 'image/png',
+    mimeType: 'image/png',
   };
 };
 
-exports.generateVideo = async (prompt, imageBase64, imageMimeType) => {
-  const model = genAI.getGenerativeModel({ model: 'veo-2.0-generate-001' });
-
-  const generateConfig = {
+exports.generateVideo = async (prompt) => {
+  let operation = await ai.models.generateVideos({
+    model: 'veo-2.0-generate-001',
     prompt,
     config: {
-      numberOfVideos: 1,
-      durationSeconds: 5,
       aspectRatio: '16:9',
     },
-  };
+  });
 
-  // If a source image is provided, use image-to-video
-  if (imageBase64) {
-    generateConfig.image = {
-      imageBytes: imageBase64,
-      mimeType: imageMimeType || 'image/png',
-    };
+  // Poll until generation completes (max ~5 min)
+  const maxAttempts = 30;
+  let attempts = 0;
+  while (!operation.done && attempts < maxAttempts) {
+    await new Promise((resolve) => setTimeout(resolve, 10000));
+    operation = await ai.operations.getVideosOperation({
+      operation,
+    });
+    attempts++;
   }
 
-  const result = await model.generateVideos(generateConfig);
-  return result;
+  if (!operation.done) {
+    throw new Error('Video generation timed out');
+  }
+
+  return operation.response;
 };
