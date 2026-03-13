@@ -36,10 +36,8 @@ exports.generatePost = async (userId, prompt) => {
       },
     });
   } catch (err) {
-    await prisma.content.update({
-      where: { id: content.id },
-      data: { status: 'FAILED', errorMessage: err.message },
-    });
+    // Clean up — don't keep failed records
+    await prisma.content.delete({ where: { id: content.id } }).catch(() => {});
     throw err;
   }
 };
@@ -75,10 +73,8 @@ exports.generateVideo = async (userId, prompt) => {
       },
     });
   } catch (err) {
-    await prisma.content.update({
-      where: { id: content.id },
-      data: { status: 'FAILED', errorMessage: err.message },
-    });
+    // Clean up — don't keep failed records
+    await prisma.content.delete({ where: { id: content.id } }).catch(() => {});
     throw err;
   }
 };

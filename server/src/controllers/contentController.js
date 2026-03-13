@@ -4,6 +4,26 @@ const MAX_PROMPT_LENGTH = 10000;
 const VALID_CONTENT_TYPES = ['POST', 'VIDEO'];
 const MAX_PAGE_LIMIT = 100;
 
+function friendlyAiError(err) {
+  const msg = err.message || '';
+  if (msg.includes('RESOURCE_EXHAUSTED') || msg.includes('429') || msg.includes('quota')) {
+    return 'AI rate limit reached. Please wait a minute and try again.';
+  }
+  if (msg.includes('PERMISSION_DENIED') || msg.includes('403')) {
+    return 'API key does not have permission for this model. Check your Google AI API key.';
+  }
+  if (msg.includes('NOT_FOUND') || msg.includes('404') || msg.includes('no longer available')) {
+    return 'AI model is currently unavailable. Please try again later.';
+  }
+  if (msg.includes('INVALID_ARGUMENT') || msg.includes('400')) {
+    return 'The prompt was rejected by the AI. Try rephrasing your request.';
+  }
+  if (msg.includes('timed out')) {
+    return 'Generation timed out. Please try again.';
+  }
+  return 'Content generation failed. Please try again.';
+}
+
 exports.generatePost = async (req, res, next) => {
   try {
     const { prompt } = req.body;
@@ -16,7 +36,8 @@ exports.generatePost = async (req, res, next) => {
     const content = await contentService.generatePost(req.userId, prompt.trim());
     res.status(201).json({ success: true, data: content });
   } catch (err) {
-    next(err);
+    console.error('Post generation error:', err.message);
+    res.status(502).json({ success: false, message: friendlyAiError(err) });
   }
 };
 
@@ -32,7 +53,8 @@ exports.generateVideo = async (req, res, next) => {
     const content = await contentService.generateVideo(req.userId, prompt.trim());
     res.status(201).json({ success: true, data: content });
   } catch (err) {
-    next(err);
+    console.error('Video generation error:', err.message);
+    res.status(502).json({ success: false, message: friendlyAiError(err) });
   }
 };
 
