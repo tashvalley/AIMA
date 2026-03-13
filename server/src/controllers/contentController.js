@@ -47,14 +47,14 @@ exports.generatePost = async (req, res, next) => {
 
 exports.generateVideo = async (req, res, next) => {
   try {
-    const { prompt } = req.body;
+    const { prompt, withAudio } = req.body;
     if (!prompt || typeof prompt !== 'string' || !prompt.trim()) {
       return res.status(400).json({ success: false, message: 'Prompt is required' });
     }
     if (prompt.length > MAX_PROMPT_LENGTH) {
       return res.status(400).json({ success: false, message: `Prompt must be ${MAX_PROMPT_LENGTH} characters or fewer` });
     }
-    const content = await contentService.generateVideo(req.userId, prompt.trim());
+    const content = await contentService.generateVideo(req.userId, prompt.trim(), withAudio !== false);
     res.status(201).json({ success: true, data: content });
   } catch (err) {
     console.error('Video generation error:', err.message);

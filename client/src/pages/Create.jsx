@@ -23,6 +23,7 @@ export default function Create() {
   const [result, setResult] = useState(null);
   const [error, setError] = useState('');
   const [copied, setCopied] = useState(false);
+  const [withAudio, setWithAudio] = useState(true);
 
   const handleGenerate = async (e) => {
     e.preventDefault();
@@ -34,7 +35,7 @@ export default function Create() {
       const { data } =
         activeTab === 'POST'
           ? await generatePost(prompt)
-          : await generateVideo(prompt);
+          : await generateVideo(prompt, withAudio);
       setResult(data.data);
     } catch (err) {
       const msg = err.response?.data?.message || 'Generation failed. Please try again.';
@@ -90,6 +91,28 @@ export default function Create() {
             maxLength={10000}
             className="w-full px-4 py-3 bg-gray-50 dark:bg-gray-800 border border-gray-200 dark:border-gray-700 text-gray-900 dark:text-white placeholder-gray-400 dark:placeholder-gray-500 rounded-xl focus:ring-2 focus:ring-purple-500 focus:border-transparent outline-none resize-none transition-shadow"
           />
+          {/* Audio toggle — video only */}
+          {activeTab === 'VIDEO' && (
+            <div className="mt-4 flex items-center justify-between bg-gray-50 dark:bg-gray-800 rounded-xl px-4 py-3 border border-gray-200 dark:border-gray-700">
+              <div className="flex items-center gap-2.5">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-4 w-4 text-gray-500 dark:text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={1.5}>
+                  <path strokeLinecap="round" strokeLinejoin="round" d="M19.114 5.636a9 9 0 010 12.728M16.463 8.288a5.25 5.25 0 010 7.424M6.75 8.25l4.72-4.72a.75.75 0 011.28.53v15.88a.75.75 0 01-1.28.53l-4.72-4.72H4.51c-.88 0-1.704-.507-1.938-1.354A9.009 9.009 0 012.25 12c0-.83.112-1.633.322-2.396C2.806 8.756 3.63 8.25 4.51 8.25H6.75z" />
+                </svg>
+                <div>
+                  <p className="text-sm font-medium text-gray-700 dark:text-gray-300">Generate with sound</p>
+                  <p className="text-xs text-gray-400 dark:text-gray-500">{withAudio ? 'Veo 3 — dialogue, SFX & ambient audio' : 'Veo 2 — silent video, lower cost'}</p>
+                </div>
+              </div>
+              <button
+                type="button"
+                onClick={() => setWithAudio(!withAudio)}
+                className={`relative inline-flex h-6 w-11 items-center rounded-full cursor-pointer transition-colors ${withAudio ? 'bg-purple-500' : 'bg-gray-300 dark:bg-gray-600'}`}
+              >
+                <span className={`inline-block h-4 w-4 transform rounded-full bg-white shadow transition-transform ${withAudio ? 'translate-x-6' : 'translate-x-1'}`} />
+              </button>
+            </div>
+          )}
+
           <div className="mt-4 flex items-center justify-between">
             <span className="text-xs text-gray-400 dark:text-gray-500">{prompt.length.toLocaleString()} / 10,000</span>
             <button

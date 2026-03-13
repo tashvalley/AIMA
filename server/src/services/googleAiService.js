@@ -71,11 +71,13 @@ exports.generateImage = async (prompt) => {
   }, 'generateImage');
 };
 
-exports.generateVideo = async (prompt, downloadPath) => {
+exports.generateVideo = async (prompt, downloadPath, withAudio = true) => {
+  const videoModel = withAudio ? 'veo-3.0-generate-001' : 'veo-2.0-generate-001';
+
   // Retry the initial video generation kick-off
   let operation = await withRetry(async () => {
     return ai.models.generateVideos({
-      model: 'veo-3.0-generate-001',
+      model: videoModel,
       prompt,
       config: {
         aspectRatio: '16:9',

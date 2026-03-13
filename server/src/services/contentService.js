@@ -44,7 +44,7 @@ exports.generatePost = async (userId, prompt) => {
   }
 };
 
-exports.generateVideo = async (userId, prompt) => {
+exports.generateVideo = async (userId, prompt, withAudio = true) => {
   const content = await prisma.content.create({
     data: { type: 'VIDEO', status: 'GENERATING', prompt, userId },
   });
@@ -61,7 +61,7 @@ exports.generateVideo = async (userId, prompt) => {
     // Step 2: Generate video and save directly via SDK
     const filename = `${content.id}.mp4`;
     const downloadPath = path.join(UPLOADS_DIR, filename);
-    await googleAi.generateVideo(prompt, downloadPath);
+    await googleAi.generateVideo(prompt, downloadPath, withAudio);
     const mediaUrl = `/uploads/${filename}`;
 
     return await prisma.content.update({
