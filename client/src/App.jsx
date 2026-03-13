@@ -7,6 +7,7 @@ import Register from './pages/Register'
 import Dashboard from './pages/Dashboard'
 import Create from './pages/Create'
 import History from './pages/History'
+import ContentDetail from './pages/ContentDetail'
 import NotFound from './pages/NotFound'
 
 export default function App() {
@@ -22,6 +23,7 @@ export default function App() {
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/create" element={<Create />} />
         <Route path="/history" element={<History />} />
+        <Route path="/content/:id" element={<ContentDetail />} />
       </Route>
 
       <Route path="*" element={<NotFound />} />
