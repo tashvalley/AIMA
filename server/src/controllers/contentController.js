@@ -1,3 +1,4 @@
+const path = require('path');
 const contentService = require('../services/contentService');
 
 const MAX_PROMPT_LENGTH = 10000;
@@ -90,6 +91,31 @@ exports.getById = async (req, res, next) => {
       return res.status(404).json({ success: false, message: 'Content not found' });
     }
     res.json({ success: true, data: content });
+  } catch (err) {
+    next(err);
+  }
+};
+
+exports.download = async (req, res, next) => {
+  try {
+    const content = await contentService.getContentById(req.params.id, req.userId);
+    if (!content || !content.mediaUrl) {
+      return res.status(404).json({ success: false, message: 'Content not found' });
+    }
+
+    const filename = path.basename(content.mediaUrl);
+    const filePath = path.resolve(__dirname, '..', '..', 'uploads', filename);
+
+    // Prevent path traversal
+    const uploadsDir = path.resolve(__dirname, '..', '..', 'uploads');
+    if (!filePath.startsWith(uploadsDir)) {
+      return res.status(400).json({ success: false, message: 'Invalid file' });
+    }
+
+    const ext = path.extname(filename).toLowerCase();
+    const downloadName = content.type === 'VIDEO' ? `aima-video${ext}` : `aima-image${ext}`;
+
+    res.download(filePath, downloadName);
   } catch (err) {
     next(err);
   }

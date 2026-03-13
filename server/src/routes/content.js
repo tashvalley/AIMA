@@ -17,6 +17,7 @@ router.post('/generate-post', generateLimiter, contentController.generatePost);
 router.post('/generate-video', generateLimiter, contentController.generateVideo);
 router.get('/history', contentController.getHistory);
 router.get('/:id', contentController.getById);
+router.get('/:id/download', contentController.download);
 router.delete('/:id', contentController.delete);
 
 module.exports = router;

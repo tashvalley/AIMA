@@ -21,6 +21,7 @@ exports.generateImage = async (prompt) => {
     prompt,
     config: {
       numberOfImages: 1,
+      aspectRatio: '16:9',
     },
   });
 

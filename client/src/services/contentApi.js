@@ -14,3 +14,17 @@ export const getContentById = (id) =>
 
 export const deleteContent = (id) =>
   api.delete(`/api/content/${id}`);
+
+export const downloadContent = async (id, filename) => {
+  const response = await api.get(`/api/content/${id}/download`, {
+    responseType: 'blob',
+  });
+  const url = window.URL.createObjectURL(response.data);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = filename;
+  document.body.appendChild(a);
+  a.click();
+  a.remove();
+  window.URL.revokeObjectURL(url);
+};
