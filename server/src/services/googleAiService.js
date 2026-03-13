@@ -5,7 +5,7 @@ const ai = new GoogleGenAI({ apiKey: config.googleAi.apiKey });
 
 exports.generateText = async (prompt, systemPrompt) => {
   const response = await ai.models.generateContent({
-    model: 'gemini-2.0-flash',
+    model: 'gemini-2.5-flash',
     contents: prompt,
     config: {
       systemInstruction: systemPrompt,
